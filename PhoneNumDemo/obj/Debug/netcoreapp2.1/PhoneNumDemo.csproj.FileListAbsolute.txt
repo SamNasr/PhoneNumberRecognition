@@ -1,0 +1,12 @@
+D:\PhoneNumDemo\PhoneNumDemo\bin\Debug\netcoreapp2.1\PhoneNumDemo.deps.json
+D:\PhoneNumDemo\PhoneNumDemo\bin\Debug\netcoreapp2.1\PhoneNumDemo.runtimeconfig.json
+D:\PhoneNumDemo\PhoneNumDemo\bin\Debug\netcoreapp2.1\PhoneNumDemo.runtimeconfig.dev.json
+D:\PhoneNumDemo\PhoneNumDemo\bin\Debug\netcoreapp2.1\PhoneNumDemo.dll
+D:\PhoneNumDemo\PhoneNumDemo\bin\Debug\netcoreapp2.1\PhoneNumDemo.pdb
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.csprojAssemblyReference.cache
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.csproj.CoreCompileInputs.cache
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.AssemblyInfoInputs.cache
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.AssemblyInfo.cs
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.dll
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.pdb
+D:\PhoneNumDemo\PhoneNumDemo\obj\Debug\netcoreapp2.1\PhoneNumDemo.genruntimeconfig.cache
