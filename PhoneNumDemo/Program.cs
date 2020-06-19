@@ -1,15 +1,16 @@
-﻿using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;         //Requires NuGet package "Microsoft.Azure.CognitiveServices.Vision.ComputerVision"
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;  //Requires NuGet package "Microsoft.Azure.CognitiveServices.Vision.ComputerVision"
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Twilio;                   //Requires NuGet Package "Twilio"
-using Twilio.Rest.Lookups.V1;   //Requires NuGet Package "Twilio"
-using Microsoft.Extensions.Configuration;  //Requires NuGet Package "Microsoft.Extensions.Configuration"
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.Extensions.Configuration;
+using Twilio;
+using Twilio.Exceptions;
+using Twilio.Rest.Lookups.V1;
 
-namespace PhoneNumDemo
+namespace PhoneNumberReader
 {
     class Program
     {
@@ -17,22 +18,20 @@ namespace PhoneNumDemo
         {
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-            //Replace the following fields with your own specific subscription Key.  Otherwise, the service call will fail.
+            // Replace the following fields with your own specific subscription Key.  Otherwise, the service call will fail.
             string subscriptionKey = config["AppSettings:subscriptionKey"];
             string endpoint = config["AppSettings:endpoint"];
 
             ComputerVisionClient client = InstantiateClient(endpoint, subscriptionKey);
-            string fileName = @"D:\PhoneNumDemo\PhoneNumDemo\Images\Card.jpg";
+            string fileName = @".\Images\Card.jpg";
             GetTextFromImage(client, fileName).Wait();
         }
-
 
         public static ComputerVisionClient InstantiateClient(string endpoint, string key)
         {
             ComputerVisionClient client = new ComputerVisionClient(new ApiKeyServiceClientCredentials(key)) { Endpoint = endpoint };
             return client;
         }
-
 
         public static async Task GetTextFromImage(ComputerVisionClient client, string imageFileName)
         {
@@ -64,25 +63,22 @@ namespace PhoneNumDemo
                             Console.WriteLine("Word bounding box: " + word.BoundingBox);
                             Console.WriteLine("Text: " + word.Text);
 
-                            //Vaidate using RegEx
+                            // Validate using RegEx
                             Regex rx = new Regex(@"^[2-9]\d{2}-\d{3}-\d{4}$", RegexOptions.IgnorePatternWhitespace);
                             MatchCollection matches = rx.Matches(word.Text);
 
                             if (matches.Count >= 1)
                             {
-                                Console.WriteLine("Phone Number Found: " + matches.First().ToString());
-                                IsTwilioVerified(matches.First().ToString());
+                                Console.WriteLine($"Phone Number Found: {matches.First()}");
+                                await IsTwilioVerified(matches.First().ToString());
                             }
                         }
-
-                        Console.WriteLine();  //Skip a space
                     }
                 }
             }
         }
 
-
-        private static bool IsTwilioVerified(string num)
+        private static async Task<bool> IsTwilioVerified(string num)
         {
             bool IsValid = false;
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
@@ -93,25 +89,31 @@ namespace PhoneNumDemo
 
             try
             {
+                // Find your Account Sid and Token at twilio.com/console. See http://twil.io/secure for more info
                 TwilioClient.Init(accountSid, authToken);
 
-                //Reference: https://www.twilio.com/docs/lookup/tutorials/validation-and-formatting
-                var numInfo = PhoneNumberResource.Fetch(countryCode: "US", pathPhoneNumber: new Twilio.Types.PhoneNumber(num));
-                Console.WriteLine("Twilio Verified Phone Number: " + numInfo.PhoneNumber);
+                // Reference: https://www.twilio.com/docs/lookup/tutorials/validation-and-formatting
+                var phoneNum = new Twilio.Types.PhoneNumber(num);
+                var numInfo = await PhoneNumberResource.FetchAsync(countryCode: "US",
+                    pathPhoneNumber: phoneNum);
+                Console.WriteLine($"Twilio Verified Phone Number: { numInfo.PhoneNumber }");
 
                 if (numInfo.PhoneNumber.ToString().Length >= 1)
                     IsValid = true;
             }
 
+            catch (ApiException e)
+            {
+                Console.WriteLine($"Twilio Error {e.Code} - {e.MoreInfo}");
+            }
+
             catch (Exception ex)
             {
                 Console.WriteLine("Error:" + ex.Message);
-                IsValid = false;
+                throw;
             }
 
             return IsValid;
         }
-
-
     }
-}      
+}
